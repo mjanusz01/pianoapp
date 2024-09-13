@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">PianoApp</string>
+    <string name="usb_connection_dialog_paragraph">Choose an instrument you want to connect with your device</string>
+</resources>
