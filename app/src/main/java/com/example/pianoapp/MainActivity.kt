@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     connectionDialogState = uiState.USBConnectionDialogStatus,
                     onDeviceChoice = viewModel.onDeviceChoice(),
                     onDialogDismiss = { viewModel.onDialogDismissed() },
-                    USBDevicesList = uiState.USBDevicesList,
+                    devices = uiState.devices
                 )
             }
         }

@@ -33,20 +33,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.pianoapp.R
-import com.example.pianoapp.ui.theme.PianoAppTheme
 import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
 import com.example.pianoapp.connection.usecase.getName
+import com.example.pianoapp.ui.theme.PianoAppTheme
 
 @Composable
 fun ConnectPianoScreen(
     connectionDialogState: ConnectionDialogState,
     onDialogDismiss: () -> Unit,
-    onDeviceChoice: (MidiDeviceInfo) -> Unit,
-    USBDevicesList: List<MidiDeviceInfo>
+    onDeviceChoice: (Device) -> Unit,
+    devices: List<Device>
 ) {
     ConnectPianoScreenContent(
         onDeviceChoice = onDeviceChoice,
-        USBDevicesList = USBDevicesList,
+        devices = devices
     )
     Dialogs(
         connectionDialogState = connectionDialogState,
@@ -67,8 +67,8 @@ fun Dialogs(connectionDialogState: ConnectionDialogState, onDismiss: () -> Unit)
 
 @Composable
 fun ConnectPianoScreenContent(
-    onDeviceChoice: (MidiDeviceInfo) -> Unit,
-    USBDevicesList: List<MidiDeviceInfo>,
+    onDeviceChoice: (Device) -> Unit,
+    devices: List<Device>
 ) {
     Column(Modifier.fillMaxSize()) {
         Column(
@@ -105,31 +105,17 @@ fun ConnectPianoScreenContent(
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
         ) {
             Spacer(Modifier.height(15.dp))
-            LazyColumn(){
-                items(USBDevicesList){
+            LazyColumn() {
+                items(devices) {
                     DeviceTile(
                         onDeviceChoice = { onDeviceChoice(it) },
-                        deviceName = (it.getName()
-                            ?.take(10) + " ..."),
+                        deviceName = (it.name ?: "Unknown name"),
                         iconResource = R.drawable.kawai_dark,
-                        true
+                        it.isConnected
                     )
                     Spacer(Modifier.height(15.dp))
                 }
             }
-            DeviceTile(
-                onDeviceChoice = {},
-                deviceName = "Kawai KDP 120",
-                iconResource = R.drawable.kawai_dark,
-                false
-            )
-            Spacer(Modifier.height(15.dp))
-            DeviceTile(
-                onDeviceChoice = {},
-                deviceName = "Kawai KDP 120",
-                iconResource = R.drawable.kawai_dark,
-                true
-            )
         }
     }
 }
@@ -171,16 +157,16 @@ fun DeviceConnectionDialog(
                 fontSize = 18.sp,
                 lineHeight = 17.sp,
             )
-            if(connectionDialogState is ConnectionDialogState.DeviceConnectedDialog)
-            Text(
-                text = connectionDialogState.midiDeviceInfo.getName() ?: "",
-                color = Color(0xFFbdbdbd),
-                fontFamily = FontFamily(
-                    Font(R.font.poppins_medium)
-                ),
-                fontSize = 22.sp,
-                lineHeight = 17.sp,
-            )
+            if (connectionDialogState is ConnectionDialogState.DeviceConnectedDialog)
+                Text(
+                    text = connectionDialogState.midiDeviceInfo.getName() ?: "",
+                    color = Color(0xFFbdbdbd),
+                    fontFamily = FontFamily(
+                        Font(R.font.poppins_medium)
+                    ),
+                    fontSize = 22.sp,
+                    lineHeight = 17.sp,
+                )
         }
     }
 }
@@ -195,7 +181,10 @@ fun DeviceTile(
     Row(
         Modifier
             .fillMaxWidth()
-            .background(color = if(isDeviceConnected) Color(0xFF83dea7) else Color(0xFF3f3a45), shape = RoundedCornerShape(20.dp))
+            .background(
+                color = if (isDeviceConnected) Color(0xFF83dea7) else Color(0xFF3f3a45),
+                shape = RoundedCornerShape(20.dp)
+            )
             .height(65.dp)
             .padding(15.dp)
     ) {
@@ -210,7 +199,7 @@ fun DeviceTile(
             Row() {
                 Text(
                     text = deviceName,
-                    color = if(isDeviceConnected) Color(0xFF212121) else Color(0xFFffffff),
+                    color = if (isDeviceConnected) Color(0xFF212121) else Color(0xFFffffff),
                     fontFamily = FontFamily(
                         Font(R.font.poppins_regular)
                     ),
@@ -219,8 +208,8 @@ fun DeviceTile(
                 )
                 Spacer(Modifier.weight(1F))
                 Text(
-                    text = if(isDeviceConnected) "Disconnect" else "Connect",
-                    color = if(isDeviceConnected) Color(0xFFa13543) else Color(0xFF0c993e),
+                    text = if (isDeviceConnected) "Disconnect" else "Connect",
+                    color = if (isDeviceConnected) Color(0xFFa13543) else Color(0xFF0c993e),
                     fontFamily = FontFamily(
                         Font(R.font.poppins_semibold)
                     ),
@@ -243,7 +232,7 @@ fun ConnectPianoScreenPreview() {
             connectionDialogState = ConnectionDialogState.DialogNotVisible,
             onDeviceChoice = {},
             onDialogDismiss = {},
-            USBDevicesList = emptyList(),
+            devices = fakeDevices
         )
     }
 }
@@ -258,6 +247,11 @@ fun ConnectionDialogState.toDialogText(): String = when (this) {
             else -> ""
         }
     }
+
     else -> ""
 }
 
+val fakeDevices : List<Device> = listOf(
+    Device(null, true, "Kawai KDP 120"),
+    Device(null, false, "Kawai KDP 130")
+)

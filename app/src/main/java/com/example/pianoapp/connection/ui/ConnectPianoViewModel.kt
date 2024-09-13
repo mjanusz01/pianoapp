@@ -20,18 +20,20 @@ class ConnectPianoViewModel(
         loadDeviceInfo()
     }
 
-    fun onDeviceChoice(): (MidiDeviceInfo) -> Unit = {
+    fun onDeviceChoice(): (Device) -> Unit = {
         viewModelScope.launch {
-            connectDeviceUseCase.initMidiConnection(it) { onConnectionFinished(it) }
+            it.midiDeviceInfo?.let { midiDeviceInfo ->
+                connectDeviceUseCase.initMidiConnection(
+                    midiDeviceInfo
+                ) { onConnectionFinished(it) }
+            }
         }
-
     }
 
-    private fun onConnectionFinished(midiConnectionStatus: MIDIConnectionStatus){
+    private fun onConnectionFinished(midiConnectionStatus: MIDIConnectionStatus) {
         _uiState.update {
             it.copy(
                 USBConnectionDialogStatus = midiConnectionStatus.toDialogState(),
-                pianoConnectionState = midiConnectionStatus.toPianoConnectionState()
             )
         }
     }
@@ -46,10 +48,10 @@ class ConnectPianoViewModel(
     }
 
     private fun loadDeviceInfo() {
-        val devices = connectDeviceUseCase.getDevicesInfo()
+        val newDevices = connectDeviceUseCase.getDevicesInfo().toDevice()
         _uiState.update {
             it.copy(
-                USBDevicesList = devices
+                devices = newDevices
             )
         }
     }
@@ -58,26 +60,15 @@ class ConnectPianoViewModel(
         is MIDIConnectionStatus.Connected -> ConnectionDialogState.DeviceConnectedDialog(this.midiDeviceInfo)
         else -> ConnectionDialogState.ErrorDialog(this)
     }
-
-    private fun MIDIConnectionStatus.toPianoConnectionState(): PianoConnectionState = when(this) {
-        is MIDIConnectionStatus.Connected -> PianoConnectionState.PianoConnected(this.midiDeviceInfo)
-        else -> PianoConnectionState.PianoNotConnected
-    }
 }
 
 data class ConnectPianoViewState(
-    val USBDevicesList: List<MidiDeviceInfo> = emptyList(),
+    val devices: List<Device> = emptyList(),
     val USBConnectionDialogStatus: ConnectionDialogState = ConnectionDialogState.DialogNotVisible,
-    val pianoConnectionState: PianoConnectionState = PianoConnectionState.PianoNotConnected
 )
 
 sealed class ConnectionDialogState {
-    data object DialogNotVisible: ConnectionDialogState()
-    data class DeviceConnectedDialog(val midiDeviceInfo: MidiDeviceInfo): ConnectionDialogState()
-    data class ErrorDialog(val midiConnectionStatus: MIDIConnectionStatus): ConnectionDialogState()
-}
-
-sealed class PianoConnectionState {
-    data class PianoConnected(val midiDeviceInfo: MidiDeviceInfo): PianoConnectionState()
-    data object PianoNotConnected: PianoConnectionState()
+    data object DialogNotVisible : ConnectionDialogState()
+    data class DeviceConnectedDialog(val midiDeviceInfo: MidiDeviceInfo) : ConnectionDialogState()
+    data class ErrorDialog(val midiConnectionStatus: MIDIConnectionStatus) : ConnectionDialogState()
 }
