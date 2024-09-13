@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -105,7 +106,7 @@ fun ConnectPianoScreenContent(
         }
         Column(
             Modifier
-                .background(Color(0xFF1a1a1a))
+                .background(Color(0xFF050505))
                 .padding(24.dp)
         ) {
             Text(
@@ -121,7 +122,7 @@ fun ConnectPianoScreenContent(
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "Choose an instrument from available sources below:",
-                color = Color(0xFFbdbdbd),
+                color = Color(0xFFf3e0ff),
                 fontFamily = FontFamily(
                     Font(R.font.poppins_light)
                 ),
@@ -133,21 +134,32 @@ fun ConnectPianoScreenContent(
         Column(
             Modifier
                 .fillMaxSize()
-                .background(Color(0xFF3d2c1d))
+                .background(Color(0xFF141414))
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
         ) {
+            Spacer(Modifier.height(15.dp))
             USBDevicesList.forEach {
                 DeviceTile(
                     onDeviceChoice = { onDeviceChoice(it) },
                     deviceName = (it.getName()
                         ?.take(10) + " ..."),
-                    iconResource = R.drawable.kawai_dark
+                    iconResource = R.drawable.kawai_dark,
+                    true
                 )
+                Spacer(Modifier.height(15.dp))
             }
             DeviceTile(
                 onDeviceChoice = {},
                 deviceName = "Kawai KDP 120",
-                iconResource = R.drawable.kawai_dark
+                iconResource = R.drawable.kawai_dark,
+                false
+            )
+            Spacer(Modifier.height(15.dp))
+            DeviceTile(
+                onDeviceChoice = {},
+                deviceName = "Kawai KDP 120",
+                iconResource = R.drawable.kawai_dark,
+                true
             )
         }
     }
@@ -209,12 +221,14 @@ fun DeviceTile(
     onDeviceChoice: () -> Unit,
     deviceName: String,
     iconResource: Int,
+    isDeviceConnected: Boolean,
 ) {
     Row(
         Modifier
             .fillMaxWidth()
+            .background(color = if(isDeviceConnected) Color(0xFF83dea7) else Color(0xFF3f3a45), shape = RoundedCornerShape(20.dp))
             .height(65.dp)
-            .padding(top = 15.dp, bottom = 15.dp)
+            .padding(15.dp)
     ) {
         Image(
             painterResource(iconResource),
@@ -227,17 +241,17 @@ fun DeviceTile(
             Row() {
                 Text(
                     text = deviceName,
-                    color = Color(0xFFbdbdbd),
+                    color = if(isDeviceConnected) Color(0xFF212121) else Color(0xFFffffff),
                     fontFamily = FontFamily(
-                        Font(R.font.poppins_light)
+                        Font(R.font.poppins_regular)
                     ),
                     fontSize = 18.sp,
                     lineHeight = 17.sp,
                 )
                 Spacer(Modifier.weight(1F))
                 Text(
-                    text = "Connect",
-                    color = Color(0xFFd4d4d4),
+                    text = if(isDeviceConnected) "Disconnect" else "Connect",
+                    color = if(isDeviceConnected) Color(0xFFa13543) else Color(0xFF0c993e),
                     fontFamily = FontFamily(
                         Font(R.font.poppins_semibold)
                     ),
@@ -250,7 +264,6 @@ fun DeviceTile(
             Spacer(Modifier.weight(1F))
         }
     }
-    Divider(color = Color(0xFF665442))
 }
 
 @Composable
