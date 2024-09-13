@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
                     onDeviceChoice = viewModel.onDeviceChoice(),
                     onDialogDismiss = { viewModel.onDialogDismissed() },
                     USBDevicesList = uiState.USBDevicesList,
-                    pianoConnectionState = uiState.pianoConnectionState
                 )
             }
         }

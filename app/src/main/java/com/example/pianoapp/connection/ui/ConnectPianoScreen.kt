@@ -1,5 +1,6 @@
 package com.example.pianoapp.connection.ui
 
+import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,9 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,53 +34,24 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.pianoapp.R
 import com.example.pianoapp.ui.theme.PianoAppTheme
-import com.example.pianoapp.usecase.connection.data.MIDIConnectionStatus
-import com.example.pianoapp.usecase.connection.getName
+import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
+import com.example.pianoapp.connection.usecase.getName
 
 @Composable
 fun ConnectPianoScreen(
     connectionDialogState: ConnectionDialogState,
     onDialogDismiss: () -> Unit,
     onDeviceChoice: (MidiDeviceInfo) -> Unit,
-    pianoConnectionState: PianoConnectionState,
     USBDevicesList: List<MidiDeviceInfo>
 ) {
     ConnectPianoScreenContent(
         onDeviceChoice = onDeviceChoice,
         USBDevicesList = USBDevicesList,
-        pianoConnectionState = pianoConnectionState
     )
     Dialogs(
         connectionDialogState = connectionDialogState,
         onDismiss = onDialogDismiss
     )
-}
-
-@Composable
-fun ConnectedPianoBanner(pianoName: String) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(Color(0xFF8c633a))
-            .padding(24.dp)
-    ) {
-        Text(
-            text = "Connected with: ",
-            color = Color(0xFFbdbdbd),
-            fontFamily = FontFamily(
-                Font(R.font.poppins_regular)
-            ),
-            fontSize = 18.sp,
-        )
-        Text(
-            text = pianoName,
-            color = Color(0xFFbdbdbd),
-            fontFamily = FontFamily(
-                Font(R.font.poppins_bold)
-            ),
-            fontSize = 18.sp,
-        )
-    }
 }
 
 @Composable
@@ -91,19 +63,14 @@ fun Dialogs(connectionDialogState: ConnectionDialogState, onDismiss: () -> Unit)
             onDismiss
         )
     }
-
 }
 
 @Composable
 fun ConnectPianoScreenContent(
     onDeviceChoice: (MidiDeviceInfo) -> Unit,
     USBDevicesList: List<MidiDeviceInfo>,
-    pianoConnectionState: PianoConnectionState
 ) {
     Column(Modifier.fillMaxSize()) {
-        if (pianoConnectionState is PianoConnectionState.PianoConnected) {
-            ConnectedPianoBanner(pianoConnectionState.midiDeviceInfo.getName() ?: "")
-        }
         Column(
             Modifier
                 .background(Color(0xFF050505))
@@ -122,7 +89,7 @@ fun ConnectPianoScreenContent(
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "Choose an instrument from available sources below:",
-                color = Color(0xFFf3e0ff),
+                color = Color(0xFFe1dae8),
                 fontFamily = FontFamily(
                     Font(R.font.poppins_light)
                 ),
@@ -138,15 +105,17 @@ fun ConnectPianoScreenContent(
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
         ) {
             Spacer(Modifier.height(15.dp))
-            USBDevicesList.forEach {
-                DeviceTile(
-                    onDeviceChoice = { onDeviceChoice(it) },
-                    deviceName = (it.getName()
-                        ?.take(10) + " ..."),
-                    iconResource = R.drawable.kawai_dark,
-                    true
-                )
-                Spacer(Modifier.height(15.dp))
+            LazyColumn(){
+                items(USBDevicesList){
+                    DeviceTile(
+                        onDeviceChoice = { onDeviceChoice(it) },
+                        deviceName = (it.getName()
+                            ?.take(10) + " ..."),
+                        iconResource = R.drawable.kawai_dark,
+                        true
+                    )
+                    Spacer(Modifier.height(15.dp))
+                }
             }
             DeviceTile(
                 onDeviceChoice = {},
@@ -275,7 +244,6 @@ fun ConnectPianoScreenPreview() {
             onDeviceChoice = {},
             onDialogDismiss = {},
             USBDevicesList = emptyList(),
-            pianoConnectionState = PianoConnectionState.PianoNotConnected
         )
     }
 }

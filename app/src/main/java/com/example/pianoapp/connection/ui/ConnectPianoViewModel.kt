@@ -3,8 +3,8 @@ package com.example.pianoapp.connection.ui
 import android.media.midi.MidiDeviceInfo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pianoapp.usecase.connection.ConnectDeviceUseCase
-import com.example.pianoapp.usecase.connection.data.MIDIConnectionStatus
+import com.example.pianoapp.connection.usecase.connectdevice.ConnectDeviceUseCase
+import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

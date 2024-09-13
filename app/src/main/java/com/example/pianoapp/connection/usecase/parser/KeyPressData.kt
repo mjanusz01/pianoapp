@@ -1,4 +1,4 @@
-package com.example.pianoapp.usecase.connection.data
+package com.example.pianoapp.connection.usecase.parser
 
 data class KeyPressData(
     val keyPressData: KeyPressInfoState,

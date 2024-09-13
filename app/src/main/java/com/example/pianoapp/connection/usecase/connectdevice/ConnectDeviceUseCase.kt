@@ -1,15 +1,12 @@
-package com.example.pianoapp.usecase.connection
+package com.example.pianoapp.connection.usecase.connectdevice
 
-import android.content.Context
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.example.pianoapp.usecase.connection.data.MIDIConnectionStatus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import com.example.pianoapp.connection.usecase.parser.KeyboardSignalReceiver
+import com.example.pianoapp.connection.usecase.getName
 
 class ConnectDeviceUseCase(
     private val keyboardSignalReceiver: KeyboardSignalReceiver,
@@ -57,5 +54,11 @@ class ConnectDeviceUseCase(
     private fun getOutputPort(ports: List<MidiDeviceInfo.PortInfo>): MidiDeviceInfo.PortInfo? {
         return ports.find { it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT }
     }
+}
 
+sealed class MIDIConnectionStatus{
+    data class Connected(val midiDeviceInfo: MidiDeviceInfo): MIDIConnectionStatus()
+    data object CantConnectWithThisDevice: MIDIConnectionStatus()
+    data object DeviceWithNoOutputPorts: MIDIConnectionStatus()
+    data object CantConnectWithThisOutputPort: MIDIConnectionStatus()
 }
