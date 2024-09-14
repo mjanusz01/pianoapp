@@ -1,7 +1,5 @@
 package com.example.pianoapp.connection.ui
 
-import android.media.midi.MidiDevice
-import android.media.midi.MidiDeviceInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -159,7 +157,7 @@ fun DeviceConnectionDialog(
             )
             if (connectionDialogState is ConnectionDialogState.DeviceConnectedDialog)
                 Text(
-                    text = connectionDialogState.midiDeviceInfo.getName() ?: "",
+                    text = connectionDialogState.deviceName,
                     color = Color(0xFFbdbdbd),
                     fontFamily = FontFamily(
                         Font(R.font.poppins_medium)
@@ -198,7 +196,7 @@ fun DeviceTile(
             Spacer(Modifier.weight(1F))
             Row() {
                 Text(
-                    text = deviceName,
+                    text = deviceName.take(10),
                     color = if (isDeviceConnected) Color(0xFF212121) else Color(0xFFffffff),
                     fontFamily = FontFamily(
                         Font(R.font.poppins_regular)
@@ -232,7 +230,33 @@ fun ConnectPianoScreenPreview() {
             connectionDialogState = ConnectionDialogState.DialogNotVisible,
             onDeviceChoice = {},
             onDialogDismiss = {},
-            devices = fakeDevices
+            devices = emptyList()
+        )
+    }
+}
+
+@Composable
+@Preview
+fun DeviceTileConnectedPreview(){
+    PianoAppTheme {
+        DeviceTile(
+            onDeviceChoice = {},
+            deviceName = "Kawai KDP 120",
+            iconResource = R.drawable.kawai_dark,
+            isDeviceConnected = true
+        )
+    }
+}
+
+@Composable
+@Preview
+fun DeviceTileNotPreview(){
+    PianoAppTheme {
+        DeviceTile(
+            onDeviceChoice = {},
+            deviceName = "Kawai KDP 120",
+            iconResource = R.drawable.kawai_dark,
+            isDeviceConnected = false
         )
     }
 }
@@ -251,7 +275,3 @@ fun ConnectionDialogState.toDialogText(): String = when (this) {
     else -> ""
 }
 
-val fakeDevices : List<Device> = listOf(
-    Device(null, true, "Kawai KDP 120"),
-    Device(null, false, "Kawai KDP 130")
-)

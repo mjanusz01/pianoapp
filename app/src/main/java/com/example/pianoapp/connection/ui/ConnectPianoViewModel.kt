@@ -1,17 +1,19 @@
 package com.example.pianoapp.connection.ui
 
-import android.media.midi.MidiDeviceInfo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pianoapp.connection.usecase.connectdevice.ConnectDeviceUseCase
 import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
+import com.example.pianoapp.session.AppSession
+import com.example.pianoapp.session.DeviceConnectionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ConnectPianoViewModel(
-    private val connectDeviceUseCase: ConnectDeviceUseCase
+    private val connectDeviceUseCase: ConnectDeviceUseCase,
+    private val appSession: AppSession
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ConnectPianoViewState())
     val uiState: StateFlow<ConnectPianoViewState> = _uiState
@@ -22,11 +24,7 @@ class ConnectPianoViewModel(
 
     fun onDeviceChoice(): (Device) -> Unit = {
         viewModelScope.launch {
-            it.midiDeviceInfo?.let { midiDeviceInfo ->
-                connectDeviceUseCase.initMidiConnection(
-                    midiDeviceInfo
-                ) { onConnectionFinished(it) }
-            }
+            connectDeviceUseCase.initMidiConnection(it) { onConnectionFinished(it) }
         }
     }
 
@@ -48,16 +46,26 @@ class ConnectPianoViewModel(
     }
 
     private fun loadDeviceInfo() {
-        val newDevices = connectDeviceUseCase.getDevicesInfo().toDevice()
+        val deviceConnectionState = appSession.getDeviceConnectionState()
+        val updatedDevices =
+            connectDeviceUseCase.getDevicesInfo().toDevice()
+                .map {
+                    if (deviceConnectionState is DeviceConnectionState.DeviceConnected
+                        && it.midiDeviceInfo.id == deviceConnectionState.device.midiDeviceInfo.id
+                    )
+                        deviceConnectionState.device.toConnectedDevice()
+                    else
+                        it
+                }
         _uiState.update {
             it.copy(
-                devices = newDevices
+                devices = updatedDevices
             )
         }
     }
 
     private fun MIDIConnectionStatus.toDialogState(): ConnectionDialogState = when (this) {
-        is MIDIConnectionStatus.Connected -> ConnectionDialogState.DeviceConnectedDialog(this.midiDeviceInfo)
+        is MIDIConnectionStatus.Connected -> ConnectionDialogState.DeviceConnectedDialog(this.deviceName)
         else -> ConnectionDialogState.ErrorDialog(this)
     }
 }
@@ -65,10 +73,11 @@ class ConnectPianoViewModel(
 data class ConnectPianoViewState(
     val devices: List<Device> = emptyList(),
     val USBConnectionDialogStatus: ConnectionDialogState = ConnectionDialogState.DialogNotVisible,
+    val isLoading: Boolean = false
 )
 
 sealed class ConnectionDialogState {
     data object DialogNotVisible : ConnectionDialogState()
-    data class DeviceConnectedDialog(val midiDeviceInfo: MidiDeviceInfo) : ConnectionDialogState()
+    data class DeviceConnectedDialog(val deviceName: String) : ConnectionDialogState()
     data class ErrorDialog(val midiConnectionStatus: MIDIConnectionStatus) : ConnectionDialogState()
 }

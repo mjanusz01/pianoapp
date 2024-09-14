@@ -7,6 +7,7 @@ import com.example.pianoapp.dashboard.ui.DashboardViewModel
 import com.example.pianoapp.connection.usecase.connectdevice.ConnectDeviceUseCase
 import com.example.pianoapp.connection.usecase.parser.KeyboardSignalReceiver
 import com.example.pianoapp.connection.usecase.parser.ParseMIDIUseCase
+import com.example.pianoapp.session.AppSession
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
@@ -18,10 +19,12 @@ val appModule = module {
     }
     singleOf(::ParseMIDIUseCase)
     singleOf(::KeyboardSignalReceiver)
+    singleOf(::AppSession)
     single{
         ConnectDeviceUseCase(
             keyboardSignalReceiver = get(),
             midiManager = get(),
+            appSession = get()
         )
     }
     singleOf(::ConnectDeviceUseCase)

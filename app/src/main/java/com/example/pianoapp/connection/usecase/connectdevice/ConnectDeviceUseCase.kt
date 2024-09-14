@@ -5,12 +5,15 @@ import android.media.midi.MidiManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.example.pianoapp.connection.ui.Device
 import com.example.pianoapp.connection.usecase.parser.KeyboardSignalReceiver
 import com.example.pianoapp.connection.usecase.getName
+import com.example.pianoapp.session.AppSession
 
 class ConnectDeviceUseCase(
     private val keyboardSignalReceiver: KeyboardSignalReceiver,
     private val midiManager: MidiManager,
+    private val appSession: AppSession
 ){
 
     fun getDevicesInfo(): List<MidiDeviceInfo> {
@@ -18,26 +21,27 @@ class ConnectDeviceUseCase(
     }
 
     fun initMidiConnection(
-        device: MidiDeviceInfo,
+        device: Device,
         onDeviceConnected: (MIDIConnectionStatus) -> Unit
     ){
-        val outputPort = getOutputPort(device.ports.asList())
+        val outputPort = device.midiDeviceInfo.ports?.let { getOutputPort(it.asList()) }
         if(outputPort == null){
             onDeviceConnected(MIDIConnectionStatus.DeviceWithNoOutputPorts)
             return
         }
 
-        val deviceName = device.getName()
+        val deviceName = device.midiDeviceInfo.getName()
 
         try {
             val outputPortIndex = outputPort.portNumber
             midiManager.openDevice(
-                device, {
+                device.midiDeviceInfo, {
                     Log.i("CONNECT_DEVICE_USE_CASE", "Inside")
                     try {
                         it.openOutputPort(outputPortIndex).connect(keyboardSignalReceiver)
                         Log.i("CONNECT_DEVICE_USE_CASE", "Piano $deviceName connected")
-                        onDeviceConnected(MIDIConnectionStatus.Connected(it.info))
+                        onDeviceConnected(MIDIConnectionStatus.Connected(it.info.getName() ?: ""))
+                        appSession.setConnectedDevice(device)
                     } catch (exception: Exception) {
                         Log.e("CONNECT_DEVICE_USE_CASE", "Piano $deviceName has no output ports or can't connect with selected output port!")
                         onDeviceConnected(MIDIConnectionStatus.CantConnectWithThisOutputPort)
@@ -57,7 +61,7 @@ class ConnectDeviceUseCase(
 }
 
 sealed class MIDIConnectionStatus{
-    data class Connected(val midiDeviceInfo: MidiDeviceInfo): MIDIConnectionStatus()
+    data class Connected(val deviceName: String): MIDIConnectionStatus()
     data object CantConnectWithThisDevice: MIDIConnectionStatus()
     data object DeviceWithNoOutputPorts: MIDIConnectionStatus()
     data object CantConnectWithThisOutputPort: MIDIConnectionStatus()
