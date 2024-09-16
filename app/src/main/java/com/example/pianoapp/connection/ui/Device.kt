@@ -2,6 +2,7 @@ package com.example.pianoapp.connection.ui
 
 import android.media.midi.MidiDeviceInfo
 import com.example.pianoapp.connection.usecase.getName
+import com.example.pianoapp.session.DeviceConnectionState
 
 data class Device(
     val midiDeviceInfo: MidiDeviceInfo,
@@ -12,5 +13,3 @@ data class Device(
 fun List<Device>.getConnectedDevice() = find { it.isConnected }
 
 fun List<MidiDeviceInfo>.toDevice() = this.map{ Device(it, false, it.getName()) }
-
-fun Device.toConnectedDevice() = Device(this.midiDeviceInfo, true, this.name)

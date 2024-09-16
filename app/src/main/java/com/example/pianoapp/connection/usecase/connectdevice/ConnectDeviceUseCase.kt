@@ -20,7 +20,7 @@ class ConnectDeviceUseCase(
         return midiManager.devices.toList()
     }
 
-    fun initMidiConnection(
+    fun connectMidiDevice(
         device: Device,
         onDeviceConnected: (MIDIConnectionStatus) -> Unit
     ){
@@ -40,8 +40,8 @@ class ConnectDeviceUseCase(
                     try {
                         it.openOutputPort(outputPortIndex).connect(keyboardSignalReceiver)
                         Log.i("CONNECT_DEVICE_USE_CASE", "Piano $deviceName connected")
-                        onDeviceConnected(MIDIConnectionStatus.Connected(it.info.getName() ?: ""))
                         appSession.setConnectedDevice(device)
+                        onDeviceConnected(MIDIConnectionStatus.Connected(it.info.getName() ?: ""))
                     } catch (exception: Exception) {
                         Log.e("CONNECT_DEVICE_USE_CASE", "Piano $deviceName has no output ports or can't connect with selected output port!")
                         onDeviceConnected(MIDIConnectionStatus.CantConnectWithThisOutputPort)
@@ -53,6 +53,10 @@ class ConnectDeviceUseCase(
             Log.e("CONNECT_DEVICE_USE_CASE", "Exception while connecting to the piano. $e")
             onDeviceConnected(MIDIConnectionStatus.CantConnectWithThisDevice)
         }
+    }
+
+    fun disconnectMidiDevice(){
+        appSession.clearConnectedDevice()
     }
 
     private fun getOutputPort(ports: List<MidiDeviceInfo.PortInfo>): MidiDeviceInfo.PortInfo? {

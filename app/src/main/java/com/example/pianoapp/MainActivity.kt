@@ -1,6 +1,5 @@
 package com.example.pianoapp
 
-import android.media.midi.MidiDeviceInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,10 +25,11 @@ class MainActivity : ComponentActivity() {
 
             PianoAppTheme {
                 ConnectPianoScreen(
-                    connectionDialogState = uiState.USBConnectionDialogStatus,
+                    connectionDialogState = uiState.dialogStatus,
                     onDeviceChoice = viewModel.onDeviceChoice(),
                     onDialogDismiss = { viewModel.onDialogDismissed() },
-                    devices = uiState.devices
+                    devices = uiState.devices,
+                    onReload = { viewModel.loadDeviceInfo() }
                 )
             }
         }

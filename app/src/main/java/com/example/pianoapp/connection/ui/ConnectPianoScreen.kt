@@ -26,13 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.pianoapp.R
 import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
-import com.example.pianoapp.connection.usecase.getName
 import com.example.pianoapp.ui.theme.PianoAppTheme
 
 @Composable
@@ -40,16 +40,54 @@ fun ConnectPianoScreen(
     connectionDialogState: ConnectionDialogState,
     onDialogDismiss: () -> Unit,
     onDeviceChoice: (Device) -> Unit,
-    devices: List<Device>
+    devices: List<Device>,
+    onReload: () -> Unit
 ) {
-    ConnectPianoScreenContent(
-        onDeviceChoice = onDeviceChoice,
-        devices = devices
-    )
+    Column(Modifier.fillMaxSize()) {
+        ConnectPianoHeader()
+        ConnectPianoContent(
+            devices = devices,
+            onDeviceChoice = onDeviceChoice,
+            onReload = onReload,
+        )
+    }
     Dialogs(
         connectionDialogState = connectionDialogState,
         onDismiss = onDialogDismiss
     )
+}
+
+@Composable
+fun ConnectPianoContent(
+    devices: List<Device>,
+    onDeviceChoice: (Device) -> Unit,
+    onReload: () -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xFF141414))
+            .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
+    ) {
+        Spacer(Modifier.height(15.dp))
+        LazyColumn{
+            items(devices) {
+                DeviceTile(
+                    onDeviceChoice = { onDeviceChoice(it) },
+                    deviceName = (it.name ?: "Unknown name"),
+                    iconResource = R.drawable.kawai_dark,
+                    it.isConnected
+                )
+                Spacer(Modifier.height(15.dp))
+            }
+        }
+        Spacer(Modifier.weight(1F))
+        ReloadComponent(
+            isAnyInstrumentAvailable = devices.isNotEmpty(),
+            onReload = onReload
+        )
+        Spacer(Modifier.weight(1F))
+    }
 }
 
 @Composable
@@ -60,61 +98,6 @@ fun Dialogs(connectionDialogState: ConnectionDialogState, onDismiss: () -> Unit)
             connectionDialogState,
             onDismiss
         )
-    }
-}
-
-@Composable
-fun ConnectPianoScreenContent(
-    onDeviceChoice: (Device) -> Unit,
-    devices: List<Device>
-) {
-    Column(Modifier.fillMaxSize()) {
-        Column(
-            Modifier
-                .background(Color(0xFF050505))
-                .padding(24.dp)
-        ) {
-            Text(
-                text = "Connect your device",
-                color = Color(0xFFededed),
-                fontFamily = FontFamily(
-                    Font(R.font.poppins_medium)
-                ),
-                fontSize = 32.sp,
-                lineHeight = 30.sp,
-                modifier = Modifier.padding(start = 15.dp, end = 15.dp)
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = "Choose an instrument from available sources below:",
-                color = Color(0xFFe1dae8),
-                fontFamily = FontFamily(
-                    Font(R.font.poppins_light)
-                ),
-                fontSize = 18.sp,
-                lineHeight = 17.sp,
-                modifier = Modifier.padding(start = 15.dp, end = 15.dp)
-            )
-        }
-        Column(
-            Modifier
-                .fillMaxSize()
-                .background(Color(0xFF141414))
-                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
-        ) {
-            Spacer(Modifier.height(15.dp))
-            LazyColumn() {
-                items(devices) {
-                    DeviceTile(
-                        onDeviceChoice = { onDeviceChoice(it) },
-                        deviceName = (it.name ?: "Unknown name"),
-                        iconResource = R.drawable.kawai_dark,
-                        it.isConnected
-                    )
-                    Spacer(Modifier.height(15.dp))
-                }
-            }
-        }
     }
 }
 
@@ -223,6 +206,94 @@ fun DeviceTile(
 }
 
 @Composable
+fun ConnectPianoHeader() {
+    Column(
+        Modifier
+            .background(Color(0xFF050505))
+            .padding(24.dp)
+    ) {
+        Text(
+            text = "Connect your device",
+            color = Color(0xFFededed),
+            fontFamily = FontFamily(
+                Font(R.font.poppins_medium)
+            ),
+            fontSize = 32.sp,
+            lineHeight = 30.sp,
+            modifier = Modifier.padding(start = 15.dp, end = 15.dp)
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = "Choose an instrument from available sources below:",
+            color = Color(0xFFa6a6a6),
+            fontFamily = FontFamily(
+                Font(R.font.poppins_light)
+            ),
+            fontSize = 18.sp,
+            lineHeight = 17.sp,
+            modifier = Modifier.padding(start = 15.dp, end = 15.dp)
+        )
+    }
+}
+
+@Composable
+fun ReloadComponent(
+    isAnyInstrumentAvailable: Boolean,
+    onReload: () -> Unit
+) {
+    Column() {
+        Row(
+            Modifier.fillMaxWidth()
+        ) {
+            Spacer(Modifier.weight(1F))
+            Icon(
+                painter = painterResource(R.drawable.reload_svgrepo_com_2),
+                tint = Color(0xFF757575),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(100.dp)
+                    .clickable {
+                        onReload()
+                    }
+            )
+            Spacer(Modifier.weight(1F))
+        }
+        Spacer(Modifier.height(10.dp))
+        Row {
+            Spacer(Modifier.weight(1F))
+            Text(
+                text = if (isAnyInstrumentAvailable) "Refresh" else "There are no instruments to connect. Please refresh connection.",
+                color = Color(0xFF757575),
+                fontFamily = FontFamily(
+                    Font(R.font.poppins_light)
+                ),
+                fontSize = 15.sp,
+                lineHeight = 15.sp,
+                modifier = Modifier.weight(3F),
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.weight(1F))
+        }
+    }
+}
+
+@Composable
+@Preview
+fun ReloadComponentPreview() {
+    PianoAppTheme {
+        ReloadComponent(true, {})
+    }
+}
+
+@Composable
+@Preview
+fun ReloadComponentPreviewNoInstruments() {
+    PianoAppTheme {
+        ReloadComponent(false, {})
+    }
+}
+
+@Composable
 @Preview
 fun ConnectPianoScreenPreview() {
     PianoAppTheme {
@@ -230,14 +301,15 @@ fun ConnectPianoScreenPreview() {
             connectionDialogState = ConnectionDialogState.DialogNotVisible,
             onDeviceChoice = {},
             onDialogDismiss = {},
-            devices = emptyList()
+            devices = emptyList(),
+            onReload = {}
         )
     }
 }
 
 @Composable
 @Preview
-fun DeviceTileConnectedPreview(){
+fun DeviceTileConnectedPreview() {
     PianoAppTheme {
         DeviceTile(
             onDeviceChoice = {},
@@ -250,7 +322,7 @@ fun DeviceTileConnectedPreview(){
 
 @Composable
 @Preview
-fun DeviceTileNotPreview(){
+fun DeviceTileNotPreview() {
     PianoAppTheme {
         DeviceTile(
             onDeviceChoice = {},
@@ -259,19 +331,5 @@ fun DeviceTileNotPreview(){
             isDeviceConnected = false
         )
     }
-}
-
-fun ConnectionDialogState.toDialogText(): String = when (this) {
-    is ConnectionDialogState.DeviceConnectedDialog -> "You are succesfully connected with piano: "
-    is ConnectionDialogState.ErrorDialog -> {
-        when (this.midiConnectionStatus) {
-            MIDIConnectionStatus.CantConnectWithThisDevice -> "Unfortunately an unknown error has occured. Please try again later or with another device."
-            MIDIConnectionStatus.CantConnectWithThisOutputPort -> "Your device doesn't have valid output ports. Please try with another device."
-            MIDIConnectionStatus.DeviceWithNoOutputPorts -> "Your device has no output ports. Please try with another device."
-            else -> ""
-        }
-    }
-
-    else -> ""
 }
 

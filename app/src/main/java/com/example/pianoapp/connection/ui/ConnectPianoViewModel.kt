@@ -22,44 +22,60 @@ class ConnectPianoViewModel(
         loadDeviceInfo()
     }
 
-    fun onDeviceChoice(): (Device) -> Unit = {
-        viewModelScope.launch {
-            connectDeviceUseCase.initMidiConnection(it) { onConnectionFinished(it) }
+    fun onDeviceChoice(): (Device) -> Unit = { it ->
+        if (appSession.isThisDeviceConnected(it)) {
+            disconnectDevice()
+        } else {
+            viewModelScope.launch {
+                connectDeviceUseCase.connectMidiDevice(it) { onConnectionFinished(it) }
+            }
         }
+    }
+
+    private fun disconnectDevice() {
+        val updatedDevices = uiState.value.devices.map {
+            Device(it.midiDeviceInfo, false, it.name)
+        }
+        onDevicesListChanged(updatedDevices)
+        connectDeviceUseCase.disconnectMidiDevice()
+        loadDeviceInfo()
     }
 
     private fun onConnectionFinished(midiConnectionStatus: MIDIConnectionStatus) {
         _uiState.update {
             it.copy(
-                USBConnectionDialogStatus = midiConnectionStatus.toDialogState(),
+                dialogStatus = midiConnectionStatus.toDialogState(),
             )
         }
+        loadDeviceInfo()
+
     }
 
     fun onDialogDismissed() {
         _uiState.update {
             it.copy(
-                USBConnectionDialogStatus = ConnectionDialogState.DialogNotVisible
+                dialogStatus = ConnectionDialogState.DialogNotVisible
             )
         }
-        loadDeviceInfo()
     }
 
-    private fun loadDeviceInfo() {
+    fun loadDeviceInfo() {
         val deviceConnectionState = appSession.getDeviceConnectionState()
         val updatedDevices =
-            connectDeviceUseCase.getDevicesInfo().toDevice()
-                .map {
-                    if (deviceConnectionState is DeviceConnectionState.DeviceConnected
-                        && it.midiDeviceInfo.id == deviceConnectionState.device.midiDeviceInfo.id
-                    )
-                        deviceConnectionState.device.toConnectedDevice()
-                    else
-                        it
-                }
+            connectDeviceUseCase.getDevicesInfo().toDevice().map {
+                Device(
+                    it.midiDeviceInfo,
+                    deviceConnectionState is DeviceConnectionState.DeviceConnected && it.midiDeviceInfo.id == deviceConnectionState.device.midiDeviceInfo.id,
+                    it.name
+                )
+            }
+        onDevicesListChanged(updatedDevices)
+    }
+
+    private fun onDevicesListChanged(newDevices: List<Device>) {
         _uiState.update {
             it.copy(
-                devices = updatedDevices
+                devices = newDevices
             )
         }
     }
@@ -72,7 +88,7 @@ class ConnectPianoViewModel(
 
 data class ConnectPianoViewState(
     val devices: List<Device> = emptyList(),
-    val USBConnectionDialogStatus: ConnectionDialogState = ConnectionDialogState.DialogNotVisible,
+    val dialogStatus: ConnectionDialogState = ConnectionDialogState.DialogNotVisible,
     val isLoading: Boolean = false
 )
 
@@ -80,4 +96,18 @@ sealed class ConnectionDialogState {
     data object DialogNotVisible : ConnectionDialogState()
     data class DeviceConnectedDialog(val deviceName: String) : ConnectionDialogState()
     data class ErrorDialog(val midiConnectionStatus: MIDIConnectionStatus) : ConnectionDialogState()
+}
+
+fun ConnectionDialogState.toDialogText(): String = when (this) {
+    is ConnectionDialogState.DeviceConnectedDialog -> "You are succesfully connected with piano: "
+    is ConnectionDialogState.ErrorDialog -> {
+        when (this.midiConnectionStatus) {
+            MIDIConnectionStatus.CantConnectWithThisDevice -> "Unfortunately an unknown error has occured. Please try again later or with another device."
+            MIDIConnectionStatus.CantConnectWithThisOutputPort -> "Your device doesn't have valid output ports. Please try with another device."
+            MIDIConnectionStatus.DeviceWithNoOutputPorts -> "Your device has no output ports. Please try with another device."
+            else -> ""
+        }
+    }
+
+    else -> ""
 }
