@@ -17,4 +17,5 @@ enum class Note{
     C3, CIS3, D3, DIS3, E3, F3, FIS3, G3, GIS3, A3, B3, H3,
     C4, CIS4, D4, DIS4, E4, F4, FIS4, G4, GIS4, A4, B4, H4,
     C5, CIS5, D5, DIS5, E5, F5, FIS5, G5, GIS5, A5, B5, H5,
+    C6
 }
