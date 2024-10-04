@@ -4,7 +4,7 @@ import android.media.midi.MidiReceiver
 import android.util.Log
 
 class KeyboardSignalReceiver(
-    private val parseMidiUseCase: ParseMIDIUseCase
+    private val parseMidiUseCase: ParseMIDIUseCase,
 ) : MidiReceiver() {
 
     override fun onSend(msg: ByteArray?, offset: Int, count: Int, timestamp: Long) {

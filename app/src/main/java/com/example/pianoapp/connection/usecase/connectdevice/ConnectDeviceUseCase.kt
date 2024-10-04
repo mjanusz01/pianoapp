@@ -40,7 +40,7 @@ class ConnectDeviceUseCase(
                     try {
                         it.openOutputPort(outputPortIndex).connect(keyboardSignalReceiver)
                         Log.i("CONNECT_DEVICE_USE_CASE", "Piano $deviceName connected")
-                        appSession.setConnectedDevice(device)
+                        appSession.setConnectedDevice(it)
                         onDeviceConnected(MIDIConnectionStatus.Connected(it.info.getName() ?: ""))
                     } catch (exception: Exception) {
                         Log.e("CONNECT_DEVICE_USE_CASE", "Piano $deviceName has no output ports or can't connect with selected output port!")

@@ -1,5 +1,7 @@
 package com.example.pianoapp.session
 
+import android.media.midi.MidiDevice
+import android.media.midi.MidiDeviceInfo
 import com.example.pianoapp.connection.ui.Device
 
 class AppSession {
@@ -7,14 +9,11 @@ class AppSession {
     private var deviceConnectionState: DeviceConnectionState =
         DeviceConnectionState.DeviceNotConnected
 
-    fun isAnyDeviceConnected(): Boolean =
-        deviceConnectionState is DeviceConnectionState.DeviceConnected
-
     fun isThisDeviceConnected(device: Device) =
-        deviceConnectionState is DeviceConnectionState.DeviceConnected && device.midiDeviceInfo.id == (deviceConnectionState as DeviceConnectionState.DeviceConnected).device.midiDeviceInfo.id
+        deviceConnectionState is DeviceConnectionState.DeviceConnected && device.midiDeviceInfo.id == (deviceConnectionState as DeviceConnectionState.DeviceConnected).midiDevice.info.id
 
-    fun setConnectedDevice(device: Device) {
-        deviceConnectionState = DeviceConnectionState.DeviceConnected(device)
+    fun setConnectedDevice(midiDevice: MidiDevice) {
+        deviceConnectionState = DeviceConnectionState.DeviceConnected(midiDevice)
     }
 
     fun getDeviceConnectionState() = deviceConnectionState
@@ -25,6 +24,6 @@ class AppSession {
 }
 
 sealed class DeviceConnectionState {
-    data class DeviceConnected(val device: Device) : DeviceConnectionState()
+    data class DeviceConnected(val midiDevice: MidiDevice) : DeviceConnectionState()
     data object DeviceNotConnected : DeviceConnectionState()
 }

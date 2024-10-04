@@ -1,5 +1,6 @@
 package com.example.pianoapp.connection.ui
 
+import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import com.example.pianoapp.connection.usecase.getName
 import com.example.pianoapp.session.DeviceConnectionState

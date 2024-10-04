@@ -48,7 +48,6 @@ class ConnectPianoViewModel(
             )
         }
         loadDeviceInfo()
-
     }
 
     fun onDialogDismissed() {

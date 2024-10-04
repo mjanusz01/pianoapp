@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,25 +33,54 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavController
 import com.example.pianoapp.R
-import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
+import com.example.pianoapp.keyboard.KeyboardUiState
+import com.example.pianoapp.keyboard.KeyboardViewModel
+import com.example.pianoapp.keyboard.ui.KeyboardComponent
+import com.example.pianoapp.ui.composable.TopBar
 import com.example.pianoapp.ui.theme.PianoAppTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ConnectPianoScreen(
+    navController: NavController
+) {
+
+    val connectPianoViewModel: ConnectPianoViewModel = koinViewModel()
+    val connectPianoState by connectPianoViewModel.uiState.collectAsState()
+
+    ConnectPianoScreenContent(
+        connectionDialogState = connectPianoState.dialogStatus,
+        onDialogDismiss = { connectPianoViewModel.onDialogDismissed() },
+        onDeviceChoice = connectPianoViewModel.onDeviceChoice(),
+        devices = connectPianoState.devices,
+        onReload = { connectPianoViewModel.loadDeviceInfo() },
+        onBackClick = { navController.popBackStack() },
+    )
+}
+
+@Composable
+fun ConnectPianoScreenContent(
     connectionDialogState: ConnectionDialogState,
     onDialogDismiss: () -> Unit,
     onDeviceChoice: (Device) -> Unit,
     devices: List<Device>,
-    onReload: () -> Unit
+    onReload: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize()) {
+        TopBar(
+            onBackClick = onBackClick
+        )
         ConnectPianoHeader()
         ConnectPianoContent(
             devices = devices,
             onDeviceChoice = onDeviceChoice,
             onReload = onReload,
+            modifier = Modifier.weight(5F)
         )
+        ConnectionKeyboardComponent(Modifier.weight(1F))
     }
     Dialogs(
         connectionDialogState = connectionDialogState,
@@ -61,16 +92,16 @@ fun ConnectPianoScreen(
 fun ConnectPianoContent(
     devices: List<Device>,
     onDeviceChoice: (Device) -> Unit,
-    onReload: () -> Unit
+    onReload: () -> Unit,
+    modifier: Modifier
 ) {
     Column(
-        Modifier
-            .fillMaxSize()
+        modifier
             .background(Color(0xFF141414))
             .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
     ) {
         Spacer(Modifier.height(15.dp))
-        LazyColumn{
+        LazyColumn {
             items(devices) {
                 DeviceTile(
                     onDeviceChoice = { onDeviceChoice(it) },
@@ -87,6 +118,21 @@ fun ConnectPianoContent(
             onReload = onReload
         )
         Spacer(Modifier.weight(1F))
+    }
+}
+
+@Composable
+fun ConnectionKeyboardComponent(
+    modifier: Modifier,
+) {
+    Column(modifier = modifier) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF141414))
+        ) {
+            KeyboardComponent()
+        }
     }
 }
 
@@ -175,7 +221,7 @@ fun DeviceTile(
             modifier = Modifier.clip(RoundedCornerShape(7.dp))
         )
         Spacer(Modifier.width(15.dp))
-        Column() {
+        Column {
             Spacer(Modifier.weight(1F))
             Row() {
                 Text(
@@ -292,20 +338,22 @@ fun ReloadComponentPreviewNoInstruments() {
         ReloadComponent(false, {})
     }
 }
-
-@Composable
-@Preview
-fun ConnectPianoScreenPreview() {
-    PianoAppTheme {
-        ConnectPianoScreen(
-            connectionDialogState = ConnectionDialogState.DialogNotVisible,
-            onDeviceChoice = {},
-            onDialogDismiss = {},
-            devices = emptyList(),
-            onReload = {}
-        )
-    }
-}
+//
+//@Composable
+//@Preview
+//fun ConnectPianoScreenPreview() {
+//    PianoAppTheme {
+//        ConnectPianoScreenContent(
+//            connectionDialogState = ConnectionDialogState.DialogNotVisible,
+//            onDeviceChoice = {},
+//            onDialogDismiss = {},
+//            devices = emptyList(),
+//            onReload = {},
+//            onBackClick = {},
+//            keyboardViewModel =
+//        )
+//    }
+//}
 
 @Composable
 @Preview
@@ -333,3 +381,4 @@ fun DeviceTileNotPreview() {
     }
 }
 
+val CONNECT_SCREEN_ROUTE = "connect"

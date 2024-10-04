@@ -1,27 +1,24 @@
 package com.example.pianoapp.dashboard.ui
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -30,145 +27,200 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.pianoapp.R
 import com.example.pianoapp.dashboard.ui.data.MenuItemData
 import com.example.pianoapp.dashboard.ui.data.MenuItemDataType
-import com.example.pianoapp.dashboard.ui.data.itemsData
+import com.example.pianoapp.dashboard.ui.data.toNavRoute
 import com.example.pianoapp.ui.theme.PianoAppTheme
 
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel
+    navController: NavController
+){
+    DashboardScreenContent(
+        onMenuItemChosen = {
+            navController.navigate(it.toNavRoute())
+        }
+    )
+}
+
+@Composable
+fun DashboardScreenContent(
+    onMenuItemChosen: (MenuItemDataType) -> Unit
 ) {
+    Column(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF050505))
+                .padding(30.dp)
+        ) {
+            DashboardTitleText(userName = "Steve")
+            Spacer(Modifier.height(30.dp))
+            DashboardPlayContainer()
+            Spacer(Modifier.height(30.dp))
+            DashboardRowMenuCarousel(
+                itemsData = itemsData,
+                onMenuItemChosen = onMenuItemChosen
+            )
+        }
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0xFF141414))
+                .padding(20.dp)
+        ) {
 
-    val uiState by viewModel.uiState.collectAsState()
+        }
+    }
 
+}
+
+@Composable
+fun DashboardTitleText(
+    userName: String
+) {
+    Text(
+        text = "Hello, $userName!", color = Color(0xFFededed), fontFamily = FontFamily(
+            Font(R.font.poppins_medium)
+        ), fontSize = 32.sp, modifier = Modifier.padding(start = 15.dp)
+    )
+}
+
+@Composable
+fun DashboardPlayContainer() {
     Column(
         Modifier
-            .verticalScroll(state = ScrollState(0))
-            .fillMaxSize()
-            .background(Color.White)
+            .fillMaxWidth()
+            .height(100.dp)
+            .background(
+                color = Color(0xFF7351fc), shape = RoundedCornerShape(20.dp)
+            )
     ) {
-        DashboardMainContent()
-        Spacer(Modifier.height(12.dp))
-        DashboardMenu(
-            onDashboardItemClick = { viewModel.onItemSelected(it) }
-        )
-        Spacer(Modifier.height(12.dp))
-        DashboardRankingContent()
+
     }
 }
 
 @Composable
-fun DashboardMenu(
-    onDashboardItemClick: (MenuItemDataType) -> Unit
+fun DashboardRowMenuCarousel(
+    itemsData: List<MenuItemData>,
+    onMenuItemChosen: (MenuItemDataType) -> Unit
 ) {
-    val items = itemsData
-    Column() {
-        LazyRow() {
-            items(items) { itemData ->
-                Spacer(Modifier.width(12.dp))
-                DashboardMenuItem(
-                    itemData = itemData,
-                    onClick = onDashboardItemClick
-                )
-            }
+    LazyRow {
+        items(itemsData) {
+            DashboardMenuComponent(itemText = it.text,
+                itemIconResource = it.iconResource,
+                onClick = { onMenuItemChosen(it.type) })
+            Spacer(Modifier.width(20.dp))
         }
     }
 }
 
 @Composable
-fun DashboardMainContent(
+fun DashboardMenuComponent(
+    itemText: String, itemIconResource: Int, onClick: () -> Unit
 ) {
     Column(
         Modifier
-            .height(300.dp)
-            .fillMaxWidth()
-            .background(Color(0xFF572a0f))
-    ) {
+            .size(100.dp)
+            .background(
+                color = Color(0xFF050505), shape = RoundedCornerShape(30.dp)
+            )
+            .border(1.dp, Color(0xFF9e9e9e), RoundedCornerShape(30.dp))
+            .padding(10.dp)
+            .clickable { onClick() }
 
-    }
-}
-
-@Composable
-fun DashboardMenuItem(
-    itemData: MenuItemData,
-    onClick: (MenuItemDataType) -> Unit
-) {
-    Column(
-        Modifier
-            .width(120.dp)
-            .height(120.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF572a0f))
-            .clickable {
-                onClick(itemData.type)
-            }
     ) {
         Spacer(Modifier.weight(1F))
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
+        Row(Modifier.fillMaxWidth()) {
+            Spacer(Modifier.weight(1F))
             Icon(
-                painter = painterResource(itemData.iconResource),
-                contentDescription = "Icon",
-                modifier = Modifier
-                    .width(45.dp)
-                    .height(45.dp),
-                tint = Color(0xFFf0d3c0)
+                painter = painterResource(itemIconResource),
+                tint = Color.White,
+                contentDescription = "",
+                modifier = Modifier.size(30.dp)
             )
+            Spacer(Modifier.weight(1F))
         }
-        Box(
-            modifier = Modifier.weight(2F),
-            contentAlignment = Alignment.Center
-
-        ) {
-            Text(
-                text = itemData.text,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontFamily = FontFamily(
-                    Font(R.font.poppins_semibold)
-                ),
-                fontSize = 16.sp,
-                color = Color(0xFFf0d3c0)
-            )
-        }
-    }
-}
-
-@Composable
-@Preview
-fun DashboardMenuItemPreview() {
-    PianoAppTheme {
-        DashboardMenuItem(
-            itemData = MenuItemData(
-                text = "Piano",
-                iconResource = R.drawable.piano_svgrepo_com,
-                type = MenuItemDataType.PLAY_ITEM
+        Spacer(Modifier.weight(1F))
+        Text(
+            color = Color(0xFFededed),
+            fontFamily = FontFamily(
+                Font(R.font.poppins_light)
             ),
-            onClick = {}
+            text = itemText,
+            fontSize = 11.sp,
+            lineHeight = 11.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.weight(1F))
+    }
+}
+
+@Composable
+@Preview(widthDp = 500, heightDp = 1000)
+fun DashboardPreviewBigger() {
+    PianoAppTheme {
+        DashboardScreenContent(
+            {}
         )
     }
 }
 
 @Composable
-fun DashboardRankingContent() {
-    Column(
-        Modifier
-            .height(500.dp)
-            .fillMaxWidth()
-            .background(Color.Gray)
-    ) {}
+@Preview(widthDp = 400, heightDp = 800)
+fun DashboardPreviewBigger2() {
+    PianoAppTheme {
+        DashboardScreenContent(
+            {}
+        )
+    }
 }
 
 @Composable
 @Preview
-fun DashboardScreenPreview() {
+fun DashboardMenuComponentPreview() {
     PianoAppTheme {
-        DashboardScreen(
-            viewModel = DashboardViewModel()
+        DashboardMenuComponent(itemText = "Connect piano",
+            itemIconResource = R.drawable.usb_svgrepo_com_2,
+            onClick = {})
+    }
+}
+
+@Composable
+@Preview
+fun DashboardRowMenuCarouselPreview() {
+    PianoAppTheme {
+        DashboardRowMenuCarousel(
+            itemsData,
+            {}
         )
     }
 }
+
+val itemsData = listOf(
+    MenuItemData(
+        text = "Connect",
+        iconResource = R.drawable.usb_svgrepo_com_2,
+        type = MenuItemDataType.CONNECT_ITEM
+    ),
+    MenuItemData(
+        text = "Learn",
+        iconResource = R.drawable.music_note_svgrepo_com,
+        type = MenuItemDataType.LEARN_ITEM
+    ),
+    MenuItemData(
+        text = "Practice",
+        iconResource = R.drawable.piano_svgrepo_com_3,
+        type = MenuItemDataType.PRACTICE_ITEM
+    ),
+    MenuItemData(
+        text = "Settings",
+        iconResource = R.drawable.settings_svgrepo_com,
+        type = MenuItemDataType.SETTINGS
+    ),
+)
+
+val DASHBOARD_SCREEN_ROUTE = "dashboard"

@@ -18,11 +18,10 @@ class DashboardViewModel : ViewModel() {
 
     fun onItemSelected(dataType: MenuItemDataType) {
         when(dataType){
-            MenuItemDataType.CONNECT_ITEM -> Unit
-            MenuItemDataType.PLAY_ITEM -> Unit
-            MenuItemDataType.LEARN_ITEM -> Unit
-            MenuItemDataType.PRACTICE_ITEM -> Unit
-            MenuItemDataType.RANKING_ITEM -> Unit
+            MenuItemDataType.CONNECT_ITEM -> TODO()
+            MenuItemDataType.LEARN_ITEM -> TODO()
+            MenuItemDataType.PRACTICE_ITEM -> TODO()
+            MenuItemDataType.SETTINGS -> TODO()
         }
     }
 

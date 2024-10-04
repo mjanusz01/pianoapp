@@ -5,34 +5,38 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.pianoapp.connection.ui.CONNECT_SCREEN_ROUTE
 import com.example.pianoapp.connection.ui.ConnectPianoScreen
-import com.example.pianoapp.connection.ui.ConnectPianoViewModel
+import com.example.pianoapp.dashboard.ui.DASHBOARD_SCREEN_ROUTE
+import com.example.pianoapp.dashboard.ui.DashboardScreen
+import com.example.pianoapp.dashboard.ui.DashboardScreenContent
+import com.example.pianoapp.keyboard.ui.KEYBOARD_COMPONENT
+import com.example.pianoapp.keyboard.ui.KeyboardComponent
 import com.example.pianoapp.ui.theme.PianoAppTheme
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val viewModel: ConnectPianoViewModel by viewModel()
-
         setContent {
-            val uiState by viewModel.uiState.collectAsState()
-
             PianoAppTheme {
-                ConnectPianoScreen(
-                    connectionDialogState = uiState.dialogStatus,
-                    onDeviceChoice = viewModel.onDeviceChoice(),
-                    onDialogDismiss = { viewModel.onDialogDismissed() },
-                    devices = uiState.devices,
-                    onReload = { viewModel.loadDeviceInfo() }
-                )
+                MainScreen()
             }
         }
+    }
+}
+
+@Composable
+fun MainScreen() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "dashboard") {
+        composable(DASHBOARD_SCREEN_ROUTE) { DashboardScreen(navController) }
+        composable(CONNECT_SCREEN_ROUTE) { ConnectPianoScreen(navController) }
+        composable(KEYBOARD_COMPONENT) { KeyboardComponent() }
     }
 }
 

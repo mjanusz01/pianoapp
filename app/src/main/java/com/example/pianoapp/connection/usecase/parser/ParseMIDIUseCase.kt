@@ -1,6 +1,12 @@
 package com.example.pianoapp.connection.usecase.parser
 
-class ParseMIDIUseCase {
+import com.example.pianoapp.keyboard.KeyboardViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+
+class ParseMIDIUseCase: KoinComponent{
+
+    private val keyboardViewModel: KeyboardViewModel by inject() // Use Koin's inject() method
 
     fun onNoteReceived(msg: ByteArray) {
         val isKeyPressedOrReleased = isKeyPressedOrReleased(msg[1])
@@ -12,6 +18,12 @@ class ParseMIDIUseCase {
             noteFromByteData,
             keyPressPower
         )
+
+        if(isKeyPressedOrReleased == KeyPressInfoState.KEY_PRESSED){
+            keyboardViewModel.onKeyPressed(keyPressData.note)
+        } else {
+            keyboardViewModel.onKeyReleased(keyPressData.note)
+        }
 
         println(keyPressData)
     }

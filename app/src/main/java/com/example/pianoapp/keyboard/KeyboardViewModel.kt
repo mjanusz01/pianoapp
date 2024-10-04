@@ -1,6 +1,7 @@
 package com.example.pianoapp.keyboard
 
 import androidx.lifecycle.ViewModel
+import com.example.pianoapp.connection.usecase.parser.KeyPressData
 import com.example.pianoapp.connection.usecase.parser.Note
 import com.example.pianoapp.connection.usecase.parser.getNextOrLastPossibleNote
 import com.example.pianoapp.connection.usecase.parser.getPreviousOrFirstPossibleNote
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-class KeyboardViewModel() : ViewModel() {
+class KeyboardViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(KeyboardUiState())
     val uiState: StateFlow<KeyboardUiState> = _uiState
@@ -20,15 +21,20 @@ class KeyboardViewModel() : ViewModel() {
         renderKeyboardComponent(Note.C1, Note.C3)
     }
 
-    fun onKeyEvent(note: Note){
-        _uiState.update { it ->
+    fun onKeyPressed(note: Note){
+        val newWhiteKeysList = uiState.value.whiteKeysRenderData.map{
+            if(it is KeyboardPartType.Key && it.key == note) it.copy(isPressed = true) else it
+        }
+
+        val newBlackKeysList = uiState.value.blackKeysRenderData.map{
+            if(it is KeyboardPartType.Key && it.key == note) it.copy(isPressed = true) else it
+        }
+
+        _uiState.update {
             it.copy(
-                whiteKeysRenderData = uiState.value.whiteKeysRenderData.map{
-                    if(it is KeyboardPartType.Key && it.key == note) it.copy(isPressed = true) else it
-                },
-                blackKeysRenderData = uiState.value.blackKeysRenderData.map{
-                    if(it is KeyboardPartType.Key && it.key == note) it.copy(isPressed = true) else it
-                },
+                whiteKeysRenderData = newWhiteKeysList,
+                blackKeysRenderData = newBlackKeysList,
+                test = it.test + 1
             )
         }
     }
@@ -44,6 +50,7 @@ class KeyboardViewModel() : ViewModel() {
                 },
             )
         }
+        println(uiState.value.whiteKeysRenderData)
     }
 
     fun renderKeyboardComponent(
@@ -92,6 +99,7 @@ class KeyboardViewModel() : ViewModel() {
 data class KeyboardUiState(
     val whiteKeysRenderData: List<KeyboardPartType> = emptyList(),
     val blackKeysRenderData: List<KeyboardPartType> = emptyList(),
+    val test: Int = 0
 )
 
 sealed class KeyboardPartType {
