@@ -8,27 +8,28 @@ import com.example.pianoapp.connection.usecase.connectdevice.ConnectDeviceUseCas
 import com.example.pianoapp.connection.usecase.parser.KeyboardSignalReceiver
 import com.example.pianoapp.connection.usecase.parser.ParseMIDIUseCase
 import com.example.pianoapp.keyboard.KeyboardViewModel
-import com.example.pianoapp.keyboard.ui.KEYBOARD_COMPONENT
-import com.example.pianoapp.session.AppSession
+import com.example.pianoapp.connection.MidiDeviceSession
+import com.example.pianoapp.play.PlayScreenViewModel
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val appModule = module {
     single{ KeyboardViewModel() }
+    single{ PlayScreenViewModel() }
     single<MidiManager>{
         androidContext().getSystemService(Context.MIDI_SERVICE) as MidiManager
     }
     singleOf(::ParseMIDIUseCase)
-    singleOf(::KeyboardSignalReceiver)
-    singleOf(::AppSession)
+    factoryOf(::KeyboardSignalReceiver)
+    singleOf(::MidiDeviceSession)
     single{
         ConnectDeviceUseCase(
             keyboardSignalReceiver = get(),
             midiManager = get(),
-            appSession = get()
+            midiDeviceSession = get()
         )
     }
     singleOf(::ConnectDeviceUseCase)

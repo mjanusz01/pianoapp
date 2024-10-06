@@ -16,22 +16,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.pianoapp.connection.usecase.parser.NotePitch
 import com.example.pianoapp.keyboard.KeyboardPartType
 import com.example.pianoapp.keyboard.KeyboardViewModel
+import com.example.pianoapp.ui.theme.PianoAppTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.compose.viewModel
 
 @Composable
-fun KeyboardComponent() {
-
+fun KeyboardComponent(){
     val keyboardViewModel: KeyboardViewModel = koinViewModel()
     val keyboardState by keyboardViewModel.uiState.collectAsState()
 
+    KeyboardComponentContent(keyboardState.whiteKeysRenderData, keyboardState.blackKeysRenderData)
+}
+
+@Composable
+fun KeyboardComponentContent(
+    whiteKeysRenderData: List<KeyboardPartType>,
+    blackKeysRenderData: List<KeyboardPartType>
+) {
     Row(
         Modifier.fillMaxSize()
     ) {
-        keyboardState.whiteKeysRenderData.forEach {
+        whiteKeysRenderData.forEach {
             when (it) {
                 is KeyboardPartType.Key -> {
                     KeyboardWhiteButton(
@@ -50,7 +60,7 @@ fun KeyboardComponent() {
     Row(
         Modifier.fillMaxSize()
     ) {
-        keyboardState.blackKeysRenderData.forEach {
+        blackKeysRenderData.forEach {
             when (it) {
                 is KeyboardPartType.Key -> {
                     KeyboardBlackButton(
@@ -124,77 +134,76 @@ fun KeyboardBlackButton(
     }
 }
 
-//@Composable
-//@Preview(widthDp = 800, heightDp = 300)
-//fun KeyboardComponentPreview() {
-//    PianoAppTheme {
-//        KeyboardComponent(
-//            listOf(
-//                KeyboardPartType.Key(Note.C1, 1F, true),
-//                KeyboardPartType.Key(Note.D1, 1F),
-//                KeyboardPartType.Key(Note.E1, 1F),
-//                KeyboardPartType.Key(Note.F1, 1F),
-//                KeyboardPartType.Key(Note.G1, 1F, true),
-//                KeyboardPartType.Key(Note.A1, 1F),
-//                KeyboardPartType.Key(Note.H1, 1F),
-//                KeyboardPartType.Key(Note.C2, 1F, true),
-//            ),
-//            listOf(
-//                KeyboardPartType.EmptySpace(0.5F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.CIS1, 0.7F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.DIS1, 0.7F, true),
-//                KeyboardPartType.EmptySpace(1.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.FIS1, 0.7F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.GIS1, 0.7F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.B1, 0.7F),
-//                KeyboardPartType.EmptySpace(1.15F),
-//                KeyboardPartType.EmptySpace(0.5F),
-//            )
-//        )
-//    }
-//}
+@Composable
+@Preview(widthDp = 800, heightDp = 300)
+fun KeyboardComponentPreview() {
+    PianoAppTheme {
+        KeyboardComponentContent(
+            listOf(
+                KeyboardPartType.Key(NotePitch.C1, 1F, true),
+                KeyboardPartType.Key(NotePitch.D1, 1F),
+                KeyboardPartType.Key(NotePitch.E1, 1F),
+                KeyboardPartType.Key(NotePitch.F1, 1F),
+                KeyboardPartType.Key(NotePitch.G1, 1F, true),
+                KeyboardPartType.Key(NotePitch.A1, 1F),
+                KeyboardPartType.Key(NotePitch.H1, 1F),
+                KeyboardPartType.Key(NotePitch.C2, 1F, true),
+            ),
+            listOf(
+                KeyboardPartType.EmptySpace(0.5F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.CIS1, 0.7F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.DIS1, 0.7F, true),
+                KeyboardPartType.EmptySpace(1.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.FIS1, 0.7F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.GIS1, 0.7F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.B1, 0.7F),
+                KeyboardPartType.EmptySpace(1.15F),
+                KeyboardPartType.EmptySpace(0.5F),
+            )
+        )
+    }
+}
 
-//@Composable
-//@Preview(widthDp = 600, heightDp = 300)
-//fun KeyboardComponentPreview2() {
-//    PianoAppTheme {
-//        KeyboardComponent(
-//            listOf(
-//                KeyboardPartType.Key(Note.C1, 1F),
-//                KeyboardPartType.Key(Note.D1, 1F),
-//                KeyboardPartType.Key(Note.E1, 1F, true),
-//                KeyboardPartType.Key(Note.F1, 1F),
-//                KeyboardPartType.Key(Note.G1, 1F),
-//                KeyboardPartType.Key(Note.A1, 1F),
-//            ),
-//            listOf(
-//                KeyboardPartType.EmptySpace(0.5F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.CIS1, 0.7F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.DIS1, 0.7F),
-//                KeyboardPartType.EmptySpace(1.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.FIS1, 0.7F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.Key(Note.GIS1, 0.7F, true),
-//                KeyboardPartType.EmptySpace(0.15F),
-//                KeyboardPartType.EmptySpace(0.5F),
-//            )
-//        )
-//    }
-//}
+@Composable
+@Preview(widthDp = 600, heightDp = 300)
+fun KeyboardComponentPreview2() {
+    PianoAppTheme {
+        KeyboardComponentContent(
+            listOf(
+                KeyboardPartType.Key(NotePitch.C1, 1F),
+                KeyboardPartType.Key(NotePitch.D1, 1F),
+                KeyboardPartType.Key(NotePitch.E1, 1F, true),
+                KeyboardPartType.Key(NotePitch.F1, 1F),
+                KeyboardPartType.Key(NotePitch.G1, 1F),
+                KeyboardPartType.Key(NotePitch.A1, 1F),
+            ),
+            listOf(
+                KeyboardPartType.EmptySpace(0.5F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.CIS1, 0.7F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.DIS1, 0.7F),
+                KeyboardPartType.EmptySpace(1.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.FIS1, 0.7F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.Key(NotePitch.GIS1, 0.7F, true),
+                KeyboardPartType.EmptySpace(0.15F),
+                KeyboardPartType.EmptySpace(0.5F),
+            )
+        )
+    }
+}
 
-val KEYBOARD_COMPONENT = "keyboard"
 
 

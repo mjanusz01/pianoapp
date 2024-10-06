@@ -2,7 +2,7 @@ package com.example.pianoapp.connection.usecase.parser
 
 data class KeyPressData(
     val keyPressData: KeyPressInfoState,
-    val note: Note,
+    val notePitch: NotePitch,
     val keyPressPower: Int
 )
 
@@ -10,7 +10,7 @@ enum class KeyPressInfoState{
     KEY_PRESSED, KEY_RELEASED
 }
 
-enum class Note{
+enum class NotePitch{
     C0, CIS0, D0, DIS0, E0, F0, FIS0, G0, GIS0, A0, B0, H0,
     C1, CIS1, D1, DIS1, E1, F1, FIS1, G1, GIS1, A1, B1, H1,
     C2, CIS2, D2, DIS2, E2, F2, FIS2, G2, GIS2, A2, B2, H2,

@@ -4,7 +4,7 @@ import android.view.Menu
 import com.example.pianoapp.R
 import com.example.pianoapp.connection.ui.CONNECT_SCREEN_ROUTE
 import com.example.pianoapp.dashboard.ui.DASHBOARD_SCREEN_ROUTE
-import com.example.pianoapp.keyboard.ui.KEYBOARD_COMPONENT
+import com.example.pianoapp.play.PLAY_SCREEN_ROUTE
 
 data class MenuItemData(
     val text: String,
@@ -36,9 +36,9 @@ val itemsData = listOf(
 )
 
 fun MenuItemDataType.toNavRoute() : String = when(this){
-    MenuItemDataType.LEARN_ITEM -> DASHBOARD_SCREEN_ROUTE
+    MenuItemDataType.LEARN_ITEM -> PLAY_SCREEN_ROUTE
     MenuItemDataType.CONNECT_ITEM -> CONNECT_SCREEN_ROUTE
-    MenuItemDataType.PRACTICE_ITEM -> KEYBOARD_COMPONENT
+    MenuItemDataType.PRACTICE_ITEM -> DASHBOARD_SCREEN_ROUTE
     MenuItemDataType.SETTINGS -> DASHBOARD_SCREEN_ROUTE
 }
 

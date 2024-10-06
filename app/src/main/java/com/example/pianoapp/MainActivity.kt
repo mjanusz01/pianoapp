@@ -14,9 +14,9 @@ import com.example.pianoapp.connection.ui.CONNECT_SCREEN_ROUTE
 import com.example.pianoapp.connection.ui.ConnectPianoScreen
 import com.example.pianoapp.dashboard.ui.DASHBOARD_SCREEN_ROUTE
 import com.example.pianoapp.dashboard.ui.DashboardScreen
-import com.example.pianoapp.dashboard.ui.DashboardScreenContent
-import com.example.pianoapp.keyboard.ui.KEYBOARD_COMPONENT
 import com.example.pianoapp.keyboard.ui.KeyboardComponent
+import com.example.pianoapp.play.PLAY_SCREEN_ROUTE
+import com.example.pianoapp.play.PlayScreen
 import com.example.pianoapp.ui.theme.PianoAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,7 +36,7 @@ fun MainScreen() {
     NavHost(navController = navController, startDestination = "dashboard") {
         composable(DASHBOARD_SCREEN_ROUTE) { DashboardScreen(navController) }
         composable(CONNECT_SCREEN_ROUTE) { ConnectPianoScreen(navController) }
-        composable(KEYBOARD_COMPONENT) { KeyboardComponent() }
+        composable(PLAY_SCREEN_ROUTE) { PlayScreen() }
     }
 }
 

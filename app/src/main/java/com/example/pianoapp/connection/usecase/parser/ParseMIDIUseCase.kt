@@ -20,9 +20,9 @@ class ParseMIDIUseCase: KoinComponent{
         )
 
         if(isKeyPressedOrReleased == KeyPressInfoState.KEY_PRESSED){
-            keyboardViewModel.onKeyPressed(keyPressData.note)
+            keyboardViewModel.onKeyPressed(keyPressData.notePitch)
         } else {
-            keyboardViewModel.onKeyReleased(keyPressData.note)
+            keyboardViewModel.onKeyReleased(keyPressData.notePitch)
         }
 
         println(keyPressData)
@@ -36,8 +36,8 @@ class ParseMIDIUseCase: KoinComponent{
         )
     }
 
-    private fun getNoteFromByteData(data: Byte): Note {
-        return if (data.toInt() in 36 .. 96) Note.entries[data.toInt() - 36]
+    private fun getNoteFromByteData(data: Byte): NotePitch {
+        return if (data.toInt() in 36 .. 96) NotePitch.entries[data.toInt() - 36]
             else throw MIDIParseException.ParseNoteIndexException(
             "Int value of byte should be between 36 and 96, it was ${data.toInt()}"
         )

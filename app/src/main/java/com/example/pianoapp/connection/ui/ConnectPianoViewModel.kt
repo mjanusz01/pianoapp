@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pianoapp.connection.usecase.connectdevice.ConnectDeviceUseCase
 import com.example.pianoapp.connection.usecase.connectdevice.MIDIConnectionStatus
-import com.example.pianoapp.session.AppSession
-import com.example.pianoapp.session.DeviceConnectionState
+import com.example.pianoapp.connection.MidiDeviceSession
+import com.example.pianoapp.connection.DeviceConnectionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class ConnectPianoViewModel(
     private val connectDeviceUseCase: ConnectDeviceUseCase,
-    private val appSession: AppSession
+    private val midiDeviceSession: MidiDeviceSession
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ConnectPianoViewState())
     val uiState: StateFlow<ConnectPianoViewState> = _uiState
@@ -23,7 +23,7 @@ class ConnectPianoViewModel(
     }
 
     fun onDeviceChoice(): (Device) -> Unit = { it ->
-        if (appSession.isThisDeviceConnected(it)) {
+        if (midiDeviceSession.isThisDeviceConnected(it)) {
             disconnectDevice()
         } else {
             viewModelScope.launch {
@@ -59,12 +59,12 @@ class ConnectPianoViewModel(
     }
 
     fun loadDeviceInfo() {
-        val deviceConnectionState = appSession.getDeviceConnectionState()
+        val deviceConnectionState = midiDeviceSession.getDeviceConnectionState()
         val updatedDevices =
             connectDeviceUseCase.getDevicesInfo().toDevice().map {
                 Device(
                     it.midiDeviceInfo,
-                    deviceConnectionState is DeviceConnectionState.DeviceConnected && it.midiDeviceInfo.id == deviceConnectionState.device.midiDeviceInfo.id,
+                    deviceConnectionState is DeviceConnectionState.DeviceConnected && it.midiDeviceInfo.id == deviceConnectionState.midiDevice.info.id,
                     it.name
                 )
             }

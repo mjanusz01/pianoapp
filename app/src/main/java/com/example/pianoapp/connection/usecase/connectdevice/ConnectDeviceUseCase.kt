@@ -8,12 +8,12 @@ import android.util.Log
 import com.example.pianoapp.connection.ui.Device
 import com.example.pianoapp.connection.usecase.parser.KeyboardSignalReceiver
 import com.example.pianoapp.connection.usecase.getName
-import com.example.pianoapp.session.AppSession
+import com.example.pianoapp.connection.MidiDeviceSession
 
 class ConnectDeviceUseCase(
     private val keyboardSignalReceiver: KeyboardSignalReceiver,
     private val midiManager: MidiManager,
-    private val appSession: AppSession
+    private val midiDeviceSession: MidiDeviceSession
 ){
 
     fun getDevicesInfo(): List<MidiDeviceInfo> {
@@ -38,9 +38,10 @@ class ConnectDeviceUseCase(
                 device.midiDeviceInfo, {
                     Log.i("CONNECT_DEVICE_USE_CASE", "Inside")
                     try {
-                        it.openOutputPort(outputPortIndex).connect(keyboardSignalReceiver)
+                        val chosenOutputPort = it.openOutputPort(outputPortIndex)
+                        chosenOutputPort.connect(keyboardSignalReceiver)
                         Log.i("CONNECT_DEVICE_USE_CASE", "Piano $deviceName connected")
-                        appSession.setConnectedDevice(it)
+                        midiDeviceSession.setConnectedDevice(it, chosenOutputPort)
                         onDeviceConnected(MIDIConnectionStatus.Connected(it.info.getName() ?: ""))
                     } catch (exception: Exception) {
                         Log.e("CONNECT_DEVICE_USE_CASE", "Piano $deviceName has no output ports or can't connect with selected output port!")
@@ -56,7 +57,7 @@ class ConnectDeviceUseCase(
     }
 
     fun disconnectMidiDevice(){
-        appSession.clearConnectedDevice()
+        midiDeviceSession.clearConnectedDevice()
     }
 
     private fun getOutputPort(ports: List<MidiDeviceInfo.PortInfo>): MidiDeviceInfo.PortInfo? {

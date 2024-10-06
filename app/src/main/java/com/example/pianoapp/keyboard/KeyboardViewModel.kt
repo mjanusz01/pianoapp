@@ -1,8 +1,7 @@
 package com.example.pianoapp.keyboard
 
 import androidx.lifecycle.ViewModel
-import com.example.pianoapp.connection.usecase.parser.KeyPressData
-import com.example.pianoapp.connection.usecase.parser.Note
+import com.example.pianoapp.connection.usecase.parser.NotePitch
 import com.example.pianoapp.connection.usecase.parser.getNextOrLastPossibleNote
 import com.example.pianoapp.connection.usecase.parser.getPreviousOrFirstPossibleNote
 import com.example.pianoapp.connection.usecase.parser.hasNextKeyMoreSpace
@@ -18,16 +17,16 @@ class KeyboardViewModel : ViewModel() {
     val uiState: StateFlow<KeyboardUiState> = _uiState
 
     init {
-        renderKeyboardComponent(Note.C1, Note.C3)
+        renderKeyboardComponent(NotePitch.C0, NotePitch.C4)
     }
 
-    fun onKeyPressed(note: Note){
+    fun onKeyPressed(notePitch: NotePitch){
         val newWhiteKeysList = uiState.value.whiteKeysRenderData.map{
-            if(it is KeyboardPartType.Key && it.key == note) it.copy(isPressed = true) else it
+            if(it is KeyboardPartType.Key && it.key == notePitch) it.copy(isPressed = true) else it
         }
 
         val newBlackKeysList = uiState.value.blackKeysRenderData.map{
-            if(it is KeyboardPartType.Key && it.key == note) it.copy(isPressed = true) else it
+            if(it is KeyboardPartType.Key && it.key == notePitch) it.copy(isPressed = true) else it
         }
 
         _uiState.update {
@@ -39,14 +38,14 @@ class KeyboardViewModel : ViewModel() {
         }
     }
 
-    fun onKeyReleased(note: Note){
+    fun onKeyReleased(notePitch: NotePitch){
         _uiState.update { it ->
             it.copy(
                 whiteKeysRenderData = uiState.value.whiteKeysRenderData.map{
-                    if(it is KeyboardPartType.Key && it.key == note && it.isPressed) it.copy(isPressed = false) else it
+                    if(it is KeyboardPartType.Key && it.key == notePitch && it.isPressed) it.copy(isPressed = false) else it
                 },
                 blackKeysRenderData = uiState.value.blackKeysRenderData.map{
-                    if(it is KeyboardPartType.Key && it.key == note && it.isPressed) it.copy(isPressed = false) else it
+                    if(it is KeyboardPartType.Key && it.key == notePitch && it.isPressed) it.copy(isPressed = false) else it
                 },
             )
         }
@@ -54,19 +53,19 @@ class KeyboardViewModel : ViewModel() {
     }
 
     fun renderKeyboardComponent(
-        firstNote: Note,
-        lastNote: Note
+        firstNotePitch: NotePitch,
+        lastNotePitch: NotePitch
     ) {
 
         // first and last note should be white
         val startNote =
-            if (firstNote.isBlack()) firstNote.getPreviousOrFirstPossibleNote() else firstNote
-        val endNote = if (firstNote.isBlack()) lastNote.getNextOrLastPossibleNote() else lastNote
+            if (firstNotePitch.isBlack()) firstNotePitch.getPreviousOrFirstPossibleNote() else firstNotePitch
+        val endNote = if (firstNotePitch.isBlack()) lastNotePitch.getNextOrLastPossibleNote() else lastNotePitch
 
         val whiteKeysToGenerate =
-            Note.entries.filter { it.isWhite() && it >= startNote && it <= endNote }
+            NotePitch.entries.filter { it.isWhite() && it >= startNote && it <= endNote }
         val blackKeysToGenerate =
-            Note.entries.filter { it.isBlack() && it >= startNote && it <= endNote }
+            NotePitch.entries.filter { it.isBlack() && it >= startNote && it <= endNote }
 
         val newWhiteKeysRenderData = whiteKeysToGenerate.map { KeyboardPartType.Key(it, 1F) }
         val newBlackKeysRenderData =
@@ -103,7 +102,7 @@ data class KeyboardUiState(
 )
 
 sealed class KeyboardPartType {
-    data class Key(val key: Note, val weight: Float, val isPressed: Boolean = false) : KeyboardPartType()
+    data class Key(val key: NotePitch, val weight: Float, val isPressed: Boolean = false) : KeyboardPartType()
     data class EmptySpace(val weight: Float) : KeyboardPartType()
 }
 
