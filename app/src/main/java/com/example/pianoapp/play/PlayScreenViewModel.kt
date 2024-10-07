@@ -44,20 +44,30 @@ class PlayScreenViewModel : ViewModel() {
     }
 
     private fun generateWeightForBeat(beat: Beat, key: Key): List<NotationObject> = beat.notes.map {
-
         val heightTopOffset =
             if (key == Key.VIOLIN_KEY) it.notePitch.topOffsetForViolinKey() else it.notePitch.topOffsetForBassKey()
+
+        val isTail = it.duration != NoteDuration.WHOLE_NOTE
+        val isTailBefore = isTail && if(key == Key.VIOLIN_KEY) it.notePitch > NotePitch.A3 else it.notePitch > NotePitch.H1
+        val isTailAfter = isTail && if(key == Key.VIOLIN_KEY) it.notePitch <= NotePitch.A3 else it.notePitch <= NotePitch.H1
+
+        val tailType = when{
+            isTailBefore -> TailType.BEFORE
+            isTailAfter -> TailType.AFTER
+            else -> TailType.NO_TAIL
+        }
 
         NotationObject.Note(
             it.duration,
             it.noteOffset + 0.5F,
             beat.measure.beats.toFloat() - (it.noteOffset + 0.5F),
             heightTopOffset,
-            23F - heightTopOffset
+            23F - heightTopOffset,
+            tailType
         )
     }
 
-    fun NotePitch.topOffsetForViolinKey(): Float = when (this) {
+    private fun NotePitch.topOffsetForViolinKey(): Float = when (this) {
         NotePitch.C2 -> 13F
         NotePitch.CIS2 -> 13F
         NotePitch.D2 -> 12.5F
@@ -98,7 +108,7 @@ class PlayScreenViewModel : ViewModel() {
         else -> 0F
     }
 
-    fun NotePitch.topOffsetForBassKey(): Float = when (this) {
+    private fun NotePitch.topOffsetForBassKey(): Float = when (this) {
         NotePitch.C1 -> 20.5F
         NotePitch.CIS1 -> 20.5F
         NotePitch.D1 -> 20F
@@ -176,13 +186,13 @@ sealed class NotationObject {
         val widthLeftOffset: Float,
         val widthRightOffset: Float,
         val heightTopOffset: Float,
-        val heightBottomOffset: Float
+        val heightBottomOffset: Float,
+        val tailType: TailType
     ) : NotationObject()
+}
 
-    data class Tail(
-        val widthLeftOffset: Float,
-        val widthRightOffset: Float,
-        val heightTopOffset: Float,
-        val heightBottomOffset: Float
-    ) : NotationObject()
+enum class TailType{
+    NO_TAIL,
+    BEFORE,
+    AFTER
 }

@@ -8,16 +8,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.pianoapp.R
 import com.example.pianoapp.connection.usecase.parser.NotePitch
 import com.example.pianoapp.keyboard.KeyboardPartType
@@ -84,32 +88,68 @@ fun NoteHolder(
     bottomOffset: Float,
     leftOffset: Float,
     rightOffset: Float,
-    noteDuration: NoteDuration
+    noteDuration: NoteDuration,
+    tailType: TailType
 ) {
     Row(Modifier.fillMaxSize()) {
         if (leftOffset > 0) {
             Spacer(Modifier.weight(leftOffset))
         }
-        Column {
-            if (topOffset > 0) {
-                Spacer(Modifier.weight(topOffset))
+        Box{
+            Column(
+            ){
+                if (topOffset > 0) {
+                    Spacer(Modifier.weight(topOffset))
+                }
+                Icon(
+                    painter = painterResource(
+                        when (noteDuration) {
+                            NoteDuration.WHOLE_NOTE -> R.drawable.note44
+                            NoteDuration.HALF_NOTE -> R.drawable.halfnote1
+                            NoteDuration.QUARTER_NOTE -> R.drawable.quarternote1
+                            NoteDuration.EIGHT_NOTE -> R.drawable.quarternote1
+                            NoteDuration.SIXTEENTH_NOTE -> R.drawable.quarternote1
+                        }
+                    ),
+                    contentDescription = "null",
+                    modifier = Modifier.weight(1F),
+                    tint = Color.White
+                )
+                if (bottomOffset > 0) {
+                    Spacer(Modifier.weight(bottomOffset))
+                }
             }
-            Icon(
-                painter = painterResource(
-                    when (noteDuration) {
-                        NoteDuration.WHOLE_NOTE -> R.drawable.note44
-                        NoteDuration.HALF_NOTE -> R.drawable.halfnote1
-                        NoteDuration.QUARTER_NOTE -> R.drawable.quarternote1
-                        NoteDuration.EIGHT_NOTE -> R.drawable.quarternote1
-                        NoteDuration.SIXTEENTH_NOTE -> R.drawable.quarternote1
+            if (tailType == TailType.BEFORE){
+                Column(
+                    Modifier.width(1.dp).fillMaxHeight().align(Alignment.CenterStart).zIndex(1f)
+                ) {
+                    if (topOffset > 0) {
+                        Spacer(Modifier.weight(topOffset + 0.2F))
                     }
-                ),
-                contentDescription = "null",
-                modifier = Modifier.weight(1F),
-                tint = Color.White,
-            )
-            if (bottomOffset > 0) {
-                Spacer(Modifier.weight(bottomOffset))
+                    Column(
+                        Modifier.weight(3F).width(1.dp).background(Color.White)
+                    ){
+                    }
+                    if (bottomOffset > 0) {
+                        Spacer(Modifier.weight(bottomOffset - 3.0F))
+                    }
+                }
+            }
+            if (tailType == TailType.AFTER){
+                Column (
+                    Modifier.width(1.dp).fillMaxHeight().align(Alignment.CenterEnd).zIndex(1f)
+                ){
+                    if (topOffset > 0) {
+                        Spacer(Modifier.weight(topOffset - 3.0F))
+                    }
+                    Column(
+                        Modifier.weight(3F).width(1.dp).background(Color.White)
+                    ){
+                    }
+                    if (bottomOffset > 0) {
+                        Spacer(Modifier.weight(bottomOffset + 0.2F))
+                    }
+                }
             }
         }
         if (rightOffset > 0) {
@@ -192,28 +232,12 @@ fun BeatHolder(
                     it.heightBottomOffset,
                     it.widthLeftOffset,
                     it.widthRightOffset,
-                    it.noteDuration
-                )
-
-                it is NotationObject.Tail -> TailHolder(
-                    it.heightTopOffset,
-                    it.heightBottomOffset,
-                    it.widthLeftOffset,
-                    it.widthRightOffset,
+                    it.noteDuration,
+                    it.tailType
                 )
             }
         }
     }
-}
-
-@Composable
-fun TailHolder(
-    topOffset: Float,
-    bottomOffset: Float,
-    leftOffset: Float,
-    rightOffset: Float,
-) {
-
 }
 
 @Composable
@@ -272,221 +296,6 @@ fun StaffHolder() {
                 .fillMaxWidth()
                 .weight(5F)
         ) {}
-    }
-}
-
-
-@Composable
-@Preview(widthDp = 800, heightDp = 400)
-fun PlayScreenContentPreview() {
-    PianoAppTheme {
-        PlayScreenContent(
-            listOf(
-                KeyboardPartType.Key(NotePitch.C1, 1F),
-                KeyboardPartType.Key(NotePitch.D1, 1F),
-                KeyboardPartType.Key(NotePitch.E1, 1F),
-                KeyboardPartType.Key(NotePitch.F1, 1F),
-                KeyboardPartType.Key(NotePitch.G1, 1F),
-                KeyboardPartType.Key(NotePitch.A1, 1F),
-                KeyboardPartType.Key(NotePitch.H1, 1F),
-                KeyboardPartType.Key(NotePitch.C2, 1F),
-                KeyboardPartType.Key(NotePitch.D2, 1F),
-                KeyboardPartType.Key(NotePitch.E2, 1F),
-                KeyboardPartType.Key(NotePitch.F2, 1F),
-                KeyboardPartType.Key(NotePitch.G2, 1F),
-                KeyboardPartType.Key(NotePitch.A2, 1F),
-                KeyboardPartType.Key(NotePitch.H2, 1F),
-                KeyboardPartType.Key(NotePitch.C3, 1F),
-                KeyboardPartType.Key(NotePitch.D3, 1F),
-                KeyboardPartType.Key(NotePitch.E3, 1F),
-                KeyboardPartType.Key(NotePitch.F3, 1F),
-                KeyboardPartType.Key(NotePitch.G3, 1F),
-                KeyboardPartType.Key(NotePitch.A3, 1F),
-                KeyboardPartType.Key(NotePitch.H3, 1F),
-                KeyboardPartType.Key(NotePitch.C4, 1F),
-            ),
-            listOf(
-                KeyboardPartType.EmptySpace(0.5F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.CIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.DIS1, 0.7F),
-                KeyboardPartType.EmptySpace(1.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.FIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.GIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.B1, 0.7F),
-                KeyboardPartType.EmptySpace(1.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.CIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.DIS1, 0.7F),
-                KeyboardPartType.EmptySpace(1.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.FIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.GIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.B1, 0.7F),
-                KeyboardPartType.EmptySpace(1.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.CIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.DIS1, 0.7F),
-                KeyboardPartType.EmptySpace(1.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.FIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.GIS1, 0.7F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.EmptySpace(0.15F),
-                KeyboardPartType.Key(NotePitch.B1, 0.7F),
-                KeyboardPartType.EmptySpace(1.15F),
-                KeyboardPartType.EmptySpace(0.5F),
-
-                ),
-            listOf(
-                listOf(
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.WHOLE_NOTE,
-                        widthLeftOffset = 0.5F,
-                        widthRightOffset = 4F,
-                        heightTopOffset = 8.12F,
-                        heightBottomOffset = 15.15F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.QUARTER_NOTE,
-                        widthLeftOffset = 1.5F,
-                        widthRightOffset = 3F,
-                        heightTopOffset = 7.09F,
-                        heightBottomOffset = 16.18F
-                    ),
-                    NotationObject.Note(
-
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 2.5F,
-                        widthRightOffset = 2F,
-                        heightTopOffset = 7.62F,
-                        heightBottomOffset = 15.65F
-                    ),
-                    NotationObject.Note(
-
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 2.5F,
-                        widthRightOffset = 2F,
-                        heightTopOffset = 6.59F,
-                        heightBottomOffset = 16.68F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 3.5F,
-                        widthRightOffset = 1F,
-                        heightTopOffset = 5.03F,
-                        heightBottomOffset = 18.24F
-                    ),
-                ),
-                listOf(
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 0.5F,
-                        widthRightOffset = 4F,
-                        heightTopOffset = 8.12F,
-                        heightBottomOffset = 15.15F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.QUARTER_NOTE,
-                        widthLeftOffset = 1.5F,
-                        widthRightOffset = 3F,
-                        heightTopOffset = 7.09F,
-                        heightBottomOffset = 16.18F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.WHOLE_NOTE,
-                        widthLeftOffset = 2.5F,
-                        widthRightOffset = 2F,
-                        heightTopOffset = 7.62F,
-                        heightBottomOffset = 15.65F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 3.5F,
-                        widthRightOffset = 1F,
-                        heightTopOffset = 5.03F,
-                        heightBottomOffset = 18.24F
-                    ),
-                ),
-                listOf(
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 0.5F,
-                        widthRightOffset = 4F,
-                        heightTopOffset = 8.12F,
-                        heightBottomOffset = 15.15F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.QUARTER_NOTE,
-                        widthLeftOffset = 1.5F,
-                        widthRightOffset = 3F,
-                        heightTopOffset = 7.09F,
-                        heightBottomOffset = 16.18F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.WHOLE_NOTE,
-                        widthLeftOffset = 2.5F,
-                        widthRightOffset = 2F,
-                        heightTopOffset = 7.62F,
-                        heightBottomOffset = 15.65F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 3.5F,
-                        widthRightOffset = 1F,
-                        heightTopOffset = 5.03F,
-                        heightBottomOffset = 18.24F
-                    ),
-                ),
-                listOf(
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 0.5F,
-                        widthRightOffset = 4F,
-                        heightTopOffset = 8.12F,
-                        heightBottomOffset = 15.15F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.QUARTER_NOTE,
-                        widthLeftOffset = 1.5F,
-                        widthRightOffset = 3F,
-                        heightTopOffset = 7.09F,
-                        heightBottomOffset = 16.18F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.WHOLE_NOTE,
-                        widthLeftOffset = 2.5F,
-                        widthRightOffset = 2F,
-                        heightTopOffset = 7.62F,
-                        heightBottomOffset = 15.65F
-                    ),
-                    NotationObject.Note(
-                        noteDuration = NoteDuration.HALF_NOTE,
-                        widthLeftOffset = 3.5F,
-                        widthRightOffset = 1F,
-                        heightTopOffset = 5.03F,
-                        heightBottomOffset = 18.24F
-                    ),
-                ),
-            )
-        )
     }
 }
 
