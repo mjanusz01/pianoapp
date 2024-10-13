@@ -1,6 +1,5 @@
 package com.example.pianoapp.keyboard
 
-import com.example.pianoapp.connection.usecase.parser.NotePitch
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 

@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.pianoapp.connection.usecase.parser.NotePitch
 import com.example.pianoapp.keyboard.KeyboardPartType
 import com.example.pianoapp.keyboard.KeyboardViewModel
+import com.example.pianoapp.notation.data.NotePitch
 import com.example.pianoapp.ui.theme.PianoAppTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.compose.viewModel

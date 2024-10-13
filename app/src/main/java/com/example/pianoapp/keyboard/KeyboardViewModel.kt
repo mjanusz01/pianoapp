@@ -1,12 +1,12 @@
 package com.example.pianoapp.keyboard
 
 import androidx.lifecycle.ViewModel
-import com.example.pianoapp.connection.usecase.parser.NotePitch
-import com.example.pianoapp.connection.usecase.parser.getNextOrLastPossibleNote
-import com.example.pianoapp.connection.usecase.parser.getPreviousOrFirstPossibleNote
-import com.example.pianoapp.connection.usecase.parser.hasNextKeyMoreSpace
-import com.example.pianoapp.connection.usecase.parser.isBlack
-import com.example.pianoapp.connection.usecase.parser.isWhite
+import com.example.pianoapp.notation.data.NotePitch
+import com.example.pianoapp.notation.data.getNextOrLastPossibleNote
+import com.example.pianoapp.notation.data.getPreviousOrFirstPossibleNote
+import com.example.pianoapp.notation.data.hasNextKeyMoreSpace
+import com.example.pianoapp.notation.data.isBlack
+import com.example.pianoapp.notation.data.isWhite
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -17,7 +17,7 @@ class KeyboardViewModel : ViewModel() {
     val uiState: StateFlow<KeyboardUiState> = _uiState
 
     init {
-        renderKeyboardComponent(NotePitch.C0, NotePitch.C4)
+        renderKeyboardComponent(NotePitch.C1, NotePitch.C4)
     }
 
     fun onKeyPressed(notePitch: NotePitch){

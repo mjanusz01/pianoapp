@@ -1,6 +1,7 @@
 package com.example.pianoapp.connection.usecase.parser
 
 import com.example.pianoapp.keyboard.KeyboardViewModel
+import com.example.pianoapp.notation.data.NotePitch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
